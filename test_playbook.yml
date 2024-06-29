@@ -8,7 +8,12 @@
     my_var: 'abc'
 
   tasks:
+    - name: 'Continue alphabet'
+      continue_alphabet:
+        current_letters: ['E', 'B', 'C']
+      register: output
+
     - name: 'Debug this'
       ansible.builtin.debug:
-        msg: 'Oh hello there'
+        msg: "{{ output }}"
 ...
