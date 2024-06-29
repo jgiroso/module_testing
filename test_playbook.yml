@@ -1,0 +1,14 @@
+---
+- name: 'My test playbook'
+  hosts: 'localhost'
+  connection: local
+  gather_facts: false
+
+  vars:
+    my_var: 'abc'
+
+  tasks:
+    - name: 'Debug this'
+      ansible.builtin.debug:
+        msg: 'Oh hello there'
+...
