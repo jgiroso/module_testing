@@ -1,0 +1,57 @@
+---
+- name: 'Test Alphabet Module'
+  hosts: 'localhost'
+  connection: local
+  gather_facts: false
+
+  vars:
+    alphabet: 'abcdefghijklmnopqrstuvwxyz'
+
+  tasks:
+    - name: 'Set alphabet list and length'
+      ansible.builtin.set_fact:
+        alphabet_list: "{{ alphabet | list }}"
+        alphabet_length: "{{ alphabet | length }}"
+  
+    - name: 'Test 1 - lowercase standard order'
+      block:
+        - name: 'Continue entire alphabet'
+          continue_alphabet:
+            current_letters: "{{ input_list }}"
+          register: output
+
+        - name: 'Confirm module output'
+          ansible.builtin.assert:
+            that:
+              - output['missing_letters'] | length == alphabet_length | int - input_list | length
+              - input_output_combined | unique | length == input_output_combined | length
+              - input_output_combined | difference(alphabet_list) == []
+              - alphabet_list | difference(input_output_combined) == []
+          vars:
+            input_output_combined: "{{ input_list + output['missing_letters'] }}"
+      vars:
+        input_list: ['a', 'b', 'c']
+
+    - name: 'Test 2 - uppercase standard order'
+      block:
+        - name: 'Continue entire alphabet'
+          continue_alphabet:
+            current_letters: "{{ input_list }}"
+          register: output
+
+        - name: 'Debug'
+          ansible.builtin.debug:
+            msg: "{{ (input_list + output['missing_letters']) | lower  }}"
+
+        - name: 'Confirm module output'
+          ansible.builtin.assert:
+            that:
+              - output['missing_letters'] | length == alphabet_length | int - input_list | length
+              - input_output_combined | unique | length == input_output_combined | length
+              - input_output_combined | difference(alphabet_list) == []
+              - alphabet_list | difference(input_output_combined) == []
+          vars:
+            input_output_combined: "{{ (input_list + output['missing_letters']) | lower  }}"
+      vars:
+        input_list: ['A', 'B', 'C']  
+...

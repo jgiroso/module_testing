@@ -67,7 +67,8 @@ def get_letters():
 
     result = dict(
         changed=False,
-        missing_letters=[]
+        missing_letters=[],
+        string_output=''
     )
 
     module = AnsibleModule(
@@ -75,11 +76,22 @@ def get_letters():
         supports_check_mode=True
     )
 
-    if module.check_mode:
-        module.exit_json(**result)
+    # Set input to var and check that all items are a single letter
+    input_letters_list= module.params['current_letters']
+    single_char_list = all(map(lambda s: len(s) == 1, input_letters_list))
+    return_length =  module.params['return_number'] or len(input_letters_list) - 1
 
-    letters_string = ''.join(module.params['current_letters'])
-    result['missing_letters'] = find_missing_letters(letters_string)
+    # Validate input list
+    if not single_char_list:
+        module.fail_json(msg='All input items must be a single letter')
+
+    # Find missing alphabet letters
+    letters_string = ''.join(input_letters_list)
+    missing_letters = find_missing_letters(letters_string)
+
+    # Return results
+    result['missing_letters'] = missing_letters
+    result['string_output'] = return_length
 
     module.exit_json(**result)
 
