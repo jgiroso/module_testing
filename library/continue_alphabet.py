@@ -67,8 +67,7 @@ def get_letters():
 
     result = dict(
         changed=False,
-        missing_letters=[],
-        string_output=''
+        missing_letters=[]
     )
 
     module = AnsibleModule(
@@ -97,7 +96,6 @@ def get_letters():
 
     # Return results
     result['missing_letters'] = missing_letters[:return_length]
-    result['string_output'] = return_length
 
     module.exit_json(**result)
 
