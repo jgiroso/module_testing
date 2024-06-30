@@ -94,7 +94,8 @@
         input_list: ['A', 'B', 'C']
         return_number: 4
 
-    - name: 'Test 5 - pass multi-char strings'
+  # Forced Failure testing
+    - name: 'Fail 1 - pass multi-char strings'
       block:
         - name: 'Continue alphabet'
           continue_alphabet:
@@ -109,7 +110,7 @@
       vars:
         input_list: ['AB', 'CD', 'EFG']
 
-    - name: 'Test 6 - pass negative return number'
+    - name: 'Fail 2 - pass negative return number'
       block:
         - name: 'Continue alphabet'
           continue_alphabet:
@@ -125,7 +126,7 @@
       vars:
         input_list: ['A', 'B', 'C']
 
-    - name: 'Test 7 - return number is greater than missing letters'
+    - name: 'Fail 3 - return number is greater than missing letters'
       block:
         - name: 'Continue alphabet'
           continue_alphabet:
