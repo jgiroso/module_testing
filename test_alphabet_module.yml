@@ -99,7 +99,7 @@
       block:
         - name: 'Continue alphabet'
           continue_alphabet:
-            current_letters: "{{ input_list }}"
+            current_letters: ['AB', 'CD', 'EFG']
           failed_when: output['changed'] == true and output['msg'] is not defined
           register: output
 
@@ -107,14 +107,12 @@
           ansible.builtin.assert:
             that:
               - output['msg'] is search('single letter')
-      vars:
-        input_list: ['AB', 'CD', 'EFG']
 
     - name: 'Fail 2 - pass negative return number'
       block:
         - name: 'Continue alphabet'
           continue_alphabet:
-            current_letters: "{{ input_list }}"
+            current_letters: ['A', 'B', 'C']
             return_number: -3
           failed_when: output['changed'] == true and output['msg'] is not defined
           register: output
@@ -123,14 +121,12 @@
           ansible.builtin.assert:
             that:
               - output['msg'] is search('positive number')
-      vars:
-        input_list: ['A', 'B', 'C']
 
     - name: 'Fail 3 - return number is greater than missing letters'
       block:
         - name: 'Continue alphabet'
           continue_alphabet:
-            current_letters: "{{ input_list }}"
+            current_letters: ['A', 'B', 'C']
             return_number: 28
           failed_when: output['changed'] == true and output['msg'] is not defined
           register: output
@@ -139,6 +135,4 @@
           ansible.builtin.assert:
             that:
               - output['msg'] is search('greater than')
-      vars:
-        input_list: ['A', 'B', 'C']
 ...
