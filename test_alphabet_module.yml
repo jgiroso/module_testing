@@ -39,9 +39,24 @@
             current_letters: "{{ input_list }}"
           register: output
 
-        - name: 'Debug'
-          ansible.builtin.debug:
-            msg: "{{ (input_list + output['missing_letters']) | lower  }}"
+        - name: 'Confirm module output'
+          ansible.builtin.assert:
+            that:
+              - output['missing_letters'] | length == alphabet_length | int - input_list | length
+              - input_output_combined | unique | length == input_output_combined | length
+              - input_output_combined | difference(alphabet_list) == []
+              - alphabet_list | difference(input_output_combined) == []
+          vars:
+            input_output_combined: "{{ (input_list + output['missing_letters']) | lower  }}"
+      vars:
+        input_list: ['A', 'B', 'C']
+
+    - name: 'Test 3 - mixed case non alphabetical order'
+      block:
+        - name: 'Continue entire alphabet'
+          continue_alphabet:
+            current_letters: "{{ input_list }}"
+          register: output
 
         - name: 'Confirm module output'
           ansible.builtin.assert:
@@ -53,5 +68,76 @@
           vars:
             input_output_combined: "{{ (input_list + output['missing_letters']) | lower  }}"
       vars:
-        input_list: ['A', 'B', 'C']  
+        input_list: ['b', 'F', 'd', 'Q', 'G']
+
+    - name: 'Test 4 - return specified number of results'
+      block:
+        - name: "Find {{ return_number }} missing letters of the alphabet"
+          continue_alphabet:
+            current_letters: "{{ input_list }}"
+            return_number: "{{ return_number }}"
+          register: output
+
+        - name: 'Debug'
+          ansible.builtin.debug:
+            msg: "{{ output }}"
+
+        - name: 'Confirm module output'
+          ansible.builtin.assert:
+            that:
+              - output['missing_letters'] | length == return_number
+              - input_output_combined | unique | length == input_output_combined | length
+              - input_output_combined | difference(alphabet_list) == []
+          vars:
+            input_output_combined: "{{ (input_list + output['missing_letters']) | lower  }}"
+      vars:
+        input_list: ['A', 'B', 'C']
+        return_number: 4
+
+    - name: 'Test 5 - pass multi-char strings'
+      block:
+        - name: 'Continue alphabet'
+          continue_alphabet:
+            current_letters: "{{ input_list }}"
+          failed_when: output['changed'] == true and output['msg'] is not defined
+          register: output
+
+        - name: 'Confirm module output'
+          ansible.builtin.assert:
+            that:
+              - output['msg'] is search('single letter')
+      vars:
+        input_list: ['AB', 'CD', 'EFG']
+
+    - name: 'Test 6 - pass negative return number'
+      block:
+        - name: 'Continue alphabet'
+          continue_alphabet:
+            current_letters: "{{ input_list }}"
+            return_number: -3
+          failed_when: output['changed'] == true and output['msg'] is not defined
+          register: output
+
+        - name: 'Confirm module output'
+          ansible.builtin.assert:
+            that:
+              - output['msg'] is search('positive number')
+      vars:
+        input_list: ['A', 'B', 'C']
+
+    - name: 'Test 7 - return number is greater than missing letters'
+      block:
+        - name: 'Continue alphabet'
+          continue_alphabet:
+            current_letters: "{{ input_list }}"
+            return_number: 28
+          failed_when: output['changed'] == true and output['msg'] is not defined
+          register: output
+
+        - name: 'Confirm module output'
+          ansible.builtin.assert:
+            that:
+              - output['msg'] is search('greater than')
+      vars:
+        input_list: ['A', 'B', 'C']
 ...

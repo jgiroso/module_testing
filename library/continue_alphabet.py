@@ -79,7 +79,6 @@ def get_letters():
     # Set input to var and check that all items are a single letter
     input_letters_list= module.params['current_letters']
     single_char_list = all(map(lambda s: len(s) == 1, input_letters_list))
-    return_length =  module.params['return_number'] or len(input_letters_list) - 1
 
     # Validate input list
     if not single_char_list:
@@ -89,8 +88,15 @@ def get_letters():
     letters_string = ''.join(input_letters_list)
     missing_letters = find_missing_letters(letters_string)
 
+    # Validate the return number is in range
+    return_length =  module.params['return_number'] or len(missing_letters)
+    if return_length < 0:
+      module.fail_json(msg='The return_number must be a positive number', **result)
+    elif return_length > len(missing_letters):
+      module.fail_json(msg='The return_number is greater than the number of missing letters', **result)
+
     # Return results
-    result['missing_letters'] = missing_letters
+    result['missing_letters'] = missing_letters[:return_length]
     result['string_output'] = return_length
 
     module.exit_json(**result)
